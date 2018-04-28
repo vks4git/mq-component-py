@@ -9,4 +9,4 @@ setup(name='mq-component-py',
       license='BSD3',
       packages=['mq', 'mq.protocol', 'mq.component'],
       zip_safe=False,
-      install_requires=['pyzmq'])
+      install_requires=['pyzmq', 'msgpack'])

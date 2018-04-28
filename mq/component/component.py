@@ -1,5 +1,6 @@
 import multiprocessing as mp
 import zmq
+from datetime import datetime
 from ctypes import c_char_p
 
 from mq.component.communication import default_communication
@@ -22,10 +23,12 @@ class Component:
     * is_alive: set to True iff communicational process works properly. Included in monitoring message.
     * task_id: current task id. Compared with kill_task_id from kill message.
 
+    User is free to use write_log function.
     """
 
     def __init__(self, name):
         self._config = Config(name)
+        self._name = name
 
         manager = mp.Manager()
 
@@ -48,20 +51,31 @@ class Component:
                                          name='Communication channel – scheduler')
 
         self._tech_listen.start()
+        self.write_log('Technical listener started.')
         self._communication.start()
+        self.write_log('Communicational process started.')
         self.is_alive.value = True
         self._monitor.start()
+        self.write_log('Monitor started.')
 
         while True:
             kill_id = self._tech_master.recv()
             if self.task_id == kill_id and self._communication is not None:
+                self.write_log('Kill message received – restarting communicational process.')
                 self._communication.terminate()
                 self.is_alive.value = False
                 self._communication = mp.Process(target=default_communication,
-                                                 args=(self._config, self.run, self.shared_message, self.task_id,),
+                                                 args=(self._config, self._action_wrapper, self.shared_message, self.task_id,),
                                                  name='Communication channel – scheduler')
                 self._communication.start()
+                self.write_log('Communicational process started.')
                 self.is_alive.value = True
+
+    def _action_wrapper(self, sched_out, contr_out, sched_in, message):
+        try:
+            run(sched_out, contr_out, sched_in, message)
+        except Exception as e:
+            self.write_log(format(e), log_type='error')
 
     def run(self, sched_out, contr_out, sched_in, message):
         pass
@@ -73,3 +87,10 @@ class Component:
         self._communication.terminate()
         self._tech_listen.terminate()
         self._monitor.terminate()
+
+    def write_log(self, logstring, log_type = 'info'):
+        current_time = str(datetime.now())
+        header = '[' + log_type + '] ' + self._name + ' [' + current_time + ']' + ' :: ' 
+        with open(self._config.logfile, 'a+') as log:
+            log.write(header + logstring + '\n')
+

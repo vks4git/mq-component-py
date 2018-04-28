@@ -40,6 +40,9 @@ class OutgoingDecorator:
         packed_tag = msgpack.packb(tag, use_bin_type=True)
         self._channel_out.send_multipart([packed_tag, packed_message])
 
+    def send_multipart(self, tag, message):
+        self._channel_out.send_multipart([tag, packed_message])
+
 
 def default_communication(config, action, shared_message, task_id):
     """
