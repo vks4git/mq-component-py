@@ -1,6 +1,6 @@
 import zmq
 import msgpack
-from mq.protocol.functions import create_mon_result, create_message, mon_result_to_json
+from mq.protocol.functions import create_mon_result, create_message, mon_result_to_json, never_expires
 from mq.protocol.tag import message_tag
 import time
 
@@ -22,6 +22,6 @@ def default_monitor(config, shared_message, is_alive):
 
         time.sleep(delay)
         res = create_mon_result(config.name, "", status, message)
-        msg = create_message(b'', config.creator, 1e17, 'monitor', 'JSON', 'config', mon_result_to_json(res))
+        msg = create_message(b'', config.creator, never_expires, 'monitoring', 'JSON', 'data', mon_result_to_json(res))
         tag = message_tag(msg)
         channel.send_multipart([msgpack.packb(tag, use_bin_type=True), msg.pack()])

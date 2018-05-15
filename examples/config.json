@@ -19,7 +19,7 @@
   ,
     "params":{
         "example_radio-speaker-py": {
-            "creator": "0000-0000-0000-000000000000",
+            "creator": "0000-0000-0000-radio-speaker-py",
             "logfile": "/tmp/radio-speaker-py.log",
             "frequency" : 60000,
             "controller": {
@@ -28,7 +28,7 @@
             }
         },
         "example_radio-listener-py": {
-            "creator": "0123-0009-1000-010000110010",
+            "creator": "0123-0009-1000-radio-listener-py",
             "logfile": "/tmp/radio-listener-py.log",
             "frequency" : 60000,
             "controller": {
@@ -37,7 +37,7 @@
             }
         },
         "example_calculator-py": {
-            "creator": "0101-0001-1000-010000110110",
+            "creator": "0101-0001-1000-calculator-py",
             "logfile": "/tmp/calculator-py.log",
             "frequency" : 60000,
             "controller": {
@@ -46,12 +46,30 @@
             }
         },
         "example_bank-py": {
-            "creator": "0100-1001-1010-100110110010",
+            "creator": "0100-1001-1010-bank-py",
             "logfile": "/tmp/bank-py.log",
             "frequency" : 60000,
             "controller": {
                 "host": "",
                 "port": ""
+            }
+        },
+        "example_clock-ask-py": {
+            "creator": "0110-1001-1010-clock-ask-py",
+            "logfile": "/tmp/clock-ask-py.log",
+            "frequency" : 60000,
+            "controller": {
+                "host": "",
+                "port": ""
+            }
+        },
+        "example_clock-reply-py": {
+            "creator": "0101-1001-1010-clock-reply-py",
+            "logfile": "/tmp/clock-reply-py.log",
+            "frequency" : 60000,
+            "controller": {
+                "host": "127.0.0.1",
+                "port": 10000
             }
         }
     }

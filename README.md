@@ -87,6 +87,26 @@ python3 examples/bank.py --config-file examples/config.json
 
 Для взаимодействия с помощью `jobcontrol` можно использовать `bank-data.json` при постановке задачи.
 
+### Пример "Часики"
+
+Пример того, как можно объединять несколько одинаковых компонентов в кластер при помощи [контроллера](https://github.com/biocad/mq-controller). 
+
+Помимо scheduler-а потребуется собрать и запустить контроллер, об этом можно подробнее прочитать в его описании.
+
+Нужно будет запустить несколько экземпляров [часов](examples/clock-reply.py)
+```bash
+python3 examples/clock-reply.py -f examples/config.json
+python3 examples/clock-reply.py -f examples/config.json
+...
+```
+
+и один экземпляр [опрашивающего компонента](examples/clock-ask.py)
+```bash
+python3 examples/clock-ask.py -f examples/config.json
+```
+
+Каждую секунду опрашивающий компонент посылает сообщение со строкой `What time is it?` в поле data. Контроллер ищет не занятый коспонент-часы и направляет задачу ему, тот в свою очередь отправляет ответ с текущим временем в [Epoch time](https://en.wikipedia.org/wiki/Unix_time).
+
 ## Порядок реализации компонента
 
 Как вы уже наверняка знаете, для полноценной работы компонента в его обёртке необходимо реализовать различную функциональность.
