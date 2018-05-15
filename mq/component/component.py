@@ -8,6 +8,8 @@ from mq.component.monitoring import default_monitor
 from mq.component.technical import default_tech_listener
 from mq.config import Config
 
+import platform
+import sys
 
 class Component:
     """
@@ -27,6 +29,11 @@ class Component:
     """
 
     def __init__(self, name):
+        if platform.system() == 'Windows':
+            raise OSError('Windows is not supported.')
+        if sys.version_info < (3, 0):
+            raise EnvironmentError('Python 3 only is supported.')
+
         self._config = Config(name)
         self._name = name
 
@@ -90,7 +97,7 @@ class Component:
 
     def write_log(self, logstring, log_type = 'info'):
         current_time = str(datetime.now())
-        header = '[' + log_type + '] ' + self._name + ' [' + current_time + ']' + ' :: ' 
+        header = '[' + current_time + ' : ' + self._name + ' : ' + log_type + ']' 
         with open(self._config.logfile, 'a+') as log:
             log.write(header + logstring + '\n')
 

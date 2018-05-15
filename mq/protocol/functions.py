@@ -5,6 +5,10 @@ from hashlib import sha1
 
 from mq.protocol.types import Message, MonitoringResult
 
+"""
+Expiration time set to 0 indicates that message never expires.
+"""
+never_expires = 0
 
 def create_message(m_pid: bytes
                    , m_creator: str

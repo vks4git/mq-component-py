@@ -18,19 +18,37 @@
       }  
   ,
     "params":{
-        "example-speaker": {
+        "example_radio-speaker-py": {
             "creator": "0000-0000-0000-000000000000",
-            "logfile": "/tmp/example-speaker.log",
-            "frequency" : 6000,
+            "logfile": "/tmp/radio-speaker-py.log",
+            "frequency" : 60000,
             "controller": {
                 "host": "",
                 "port": ""
             }
         },
-        "example-listener": {
+        "example_radio-listener-py": {
             "creator": "0123-0009-1000-010000110010",
-            "logfile": "/tmp/example-listener.log",
-            "frequency" : 6000,
+            "logfile": "/tmp/radio-listener-py.log",
+            "frequency" : 60000,
+            "controller": {
+                "host": "",
+                "port": ""
+            }
+        },
+        "example_calculator-py": {
+            "creator": "0101-0001-1000-010000110110",
+            "logfile": "/tmp/calculator-py.log",
+            "frequency" : 60000,
+            "controller": {
+                "host": "",
+                "port": ""
+            }
+        },
+        "example_bank-py": {
+            "creator": "0100-1001-1010-100110110010",
+            "logfile": "/tmp/bank-py.log",
+            "frequency" : 60000,
             "controller": {
                 "host": "",
                 "port": ""
