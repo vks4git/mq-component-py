@@ -3,12 +3,12 @@ from mq.protocol import message_type, message_spec, create_message, never_expire
 import json
 
 from time import time
+from clock_messages import ClockResponse
 
 class ClockReply(Component):
     """
     Simple component example.
-    It receives a config message with JSON-encoded data which contains two operands and action and sends back the result.
-    write_log function is used here as an example.
+    It receives a config message with JSON-encoded question "What time is it?" and sends back result with current time. 
     """
 
     def run(self, sched_out, contr_out, sched_in, message):
@@ -20,7 +20,7 @@ class ClockReply(Component):
                 print(msg_data)
                 cur_time = int(time() * 1000)
                 self.write_log('Result sent back to %s' % msg.id.decode('UTF-8'))
-                answer = create_message(msg.id, self.get_config().creator, never_expires, 'example_clock', 'MessagePack', 'result', json.dumps({ "answer" : cur_time }).encode('UTF-8'))
+                answer = create_message(msg.id, self.get_config().creator, never_expires, 'example_clock', 'MessagePack', 'result', ClockResponse(cur_time).pack())
                 sched_in.send(answer)
 
 

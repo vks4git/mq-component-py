@@ -19,15 +19,16 @@ class IncomingDecorator:
     def recv_multipart(self):
         packed_tag, packed_message = self._channel_in.recv_multipart()
         tag = msgpack.unpackb(packed_tag)
-        message = Message(packed_message)
+        message = Message()
+        message.unpack(packed_message)
         self._task_id.value = message.id
         return (tag, message)
 
 
 class OutgoingDecorator:
     """
-    Outcoming ZMQ socket decorator.
-    Provides a convenient way to send a message: user should just create it, 
+    Outgoing ZMQ socket decorator.
+    Provides a convenient way to send a message: user must just create it, 
     the message will be packed and sent via send_multipart with its tag automatically.
     """
 

@@ -97,7 +97,7 @@ class Component:
 
     def write_log(self, logstring, log_type = 'info'):
         current_time = str(datetime.now())
-        header = '[' + current_time + ' : ' + self._name + ' : ' + log_type + ']' 
+        header = '[' + current_time + ' : ' + self._name + ' : ' + log_type + '] ' 
         with open(self._config.logfile, 'a+') as log:
             log.write(header + logstring + '\n')
 

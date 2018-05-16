@@ -19,7 +19,8 @@ def default_tech_listener(config, master_send):
     while True:
         packed_tag, packed_message = channel.recv_multipart()
         tag = msgpack.unpackb(packed_tag)
-        message = Message(packed_message)
+        message = Message()
+        message.unpack(packed_message)
 
         msg_type = message_type(tag)
         msg_spec = message_spec(tag)

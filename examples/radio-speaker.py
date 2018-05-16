@@ -1,6 +1,7 @@
 from mq.component import Component
 from mq.protocol import create_message, never_expires
 import time
+from radio_messages import RadioMessage
 
 
 class RadioSpeaker(Component):
@@ -11,7 +12,7 @@ class RadioSpeaker(Component):
 
     def run(self, sched_out, contr_out, sched_in, message):
         while True:
-            message = create_message(b'', self.get_config().creator, never_expires, 'example_radio', 'JSON', 'data', b"{ \"message\" : \"Hello! It's me.\" }")
+            message = create_message(b'', self.get_config().creator, never_expires, 'example_radio', 'JSON', 'data', RadioMessage().pack())
             print(b'sent %s' % message.data)
             sched_in.send(message)
             time.sleep(2)
