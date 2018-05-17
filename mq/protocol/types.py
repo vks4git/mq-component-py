@@ -1,5 +1,20 @@
 import msgpack
 import json
+from datetime import datetime
+
+from mq.config import Config
+
+class Logger:
+    def __init__(self, name):
+        self._config = Config(name)
+        self._name = name
+
+    def write_log(self, logstring, log_type = 'info'):
+        current_time = str(datetime.now())
+        header = '[' + current_time + ' : ' + self._name + ' : ' + log_type + '] ' 
+        with open(self._config.logfile, 'a+') as log:
+            log.write(header + logstring + '\n')
+
 
 class JSON:
     def pack(self):
@@ -24,7 +39,7 @@ class MessagePack:
         """
         dictionary = {}
         for k, v in self.__dict__.items():
-            dictionary[k.encode('UTF-8')] = v
+            dictionary[k] = v
         return msgpack.packb(dictionary, use_bin_type = True)
 
     def unpack(self, packed_data : bytes):
@@ -61,15 +76,15 @@ class Message(MessagePack):
         """
         dictionary = msgpack.unpackb(packed_data, raw=False)
 
-        self.id = unpack_field(dictionary, b'id')
-        self.pid = unpack_field(dictionary, b'pid')
-        self.creator = unpack_field(dictionary, b'creator')
-        self.created_at = unpack_field(dictionary, b'created_at')
-        self.expires_at = unpack_field(dictionary, b'expires_at')
-        self.spec = unpack_field(dictionary, b'spec')
-        self.encoding = unpack_field(dictionary, b'encoding')
-        self.type = unpack_field(dictionary, b'type')
-        self.data = unpack_field(dictionary, b'data')
+        self.id = unpack_field(dictionary, 'id')
+        self.pid = unpack_field(dictionary, 'pid')
+        self.creator = unpack_field(dictionary, 'creator')
+        self.created_at = unpack_field(dictionary, 'created_at')
+        self.expires_at = unpack_field(dictionary, 'expires_at')
+        self.spec = unpack_field(dictionary, 'spec')
+        self.encoding = unpack_field(dictionary, 'encoding')
+        self.type = unpack_field(dictionary, 'type')
+        self.data = unpack_field(dictionary, 'data')
 
 
 class MonitoringResult(MessagePack):
@@ -82,13 +97,13 @@ class MonitoringResult(MessagePack):
     def unpack(self, packed_data):
         dictionary = msgpack.unpackb(packed_data, raw=False)
 
-        self.sync_time = unpack_field(dictionary, b'sync_time')
-        self.name = unpack_field(dictionary, b'name')
-        self.is_alive = unpack_field(dictionary, b'is_alive')
-        self.message = unpack_field(dictionary, b'message')
+        self.sync_time = unpack_field(dictionary, 'sync_time')
+        self.name = unpack_field(dictionary, 'name')
+        self.is_alive = unpack_field(dictionary, 'is_alive')
+        self.message = unpack_field(dictionary, 'message')
 
 
-def unpack_field(msg: dict, name: bytes):
+def unpack_field(msg: dict, name: str):
     if name in msg:
         return msg.get(name)
     else:

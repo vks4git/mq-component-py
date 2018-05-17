@@ -5,7 +5,7 @@ from mq.protocol.tag import message_tag
 import time
 
 
-def default_monitor(config, shared_message, is_alive):
+def default_monitor(logger, config, shared_message, is_alive):
     """
     Monitoring process body.
     Sends a monitoring message to scheduler every @frequency@ (from config.json) milliseconds.
@@ -17,11 +17,14 @@ def default_monitor(config, shared_message, is_alive):
     delay = config.mon_frequency / 1000
 
     while True:
-        message = shared_message.value
-        status = is_alive.value
+        try:
+            message = shared_message.value
+            status = is_alive.value
 
-        time.sleep(delay)
-        res = create_mon_result(config.name, "", status, message)
-        msg = create_message(b'', config.creator, never_expires, 'monitoring', 'JSON', 'data', mon_result_to_json(res))
-        tag = message_tag(msg)
-        channel.send_multipart([msgpack.packb(tag, use_bin_type=True), msg.pack()])
+            time.sleep(delay)
+            res = create_mon_result(config.name, "", status, message)
+            msg = create_message(b'', config.creator, never_expires, 'monitoring', 'JSON', 'data', mon_result_to_json(res))
+            tag = message_tag(msg)
+            channel.send_multipart([msgpack.packb(tag, use_bin_type=True), msg.pack()])
+        except Exception as e:
+            logger.write_log('Monitoring :: %s' % format(e), log_type = 'error')

@@ -12,15 +12,23 @@ class IncomingDecorator:
     Current task id will be used while handling kill messages.
     """
 
-    def __init__(self, channel_in, task_id):
+    def __init__(self, logger, channel_in, task_id):
         self._channel_in = channel_in
         self._task_id = task_id
+        self.logger = logger
 
     def recv_multipart(self):
-        packed_tag, packed_message = self._channel_in.recv_multipart()
-        tag = msgpack.unpackb(packed_tag)
-        message = Message()
-        message.unpack(packed_message)
+        success = False
+        while not success:
+            try:
+                packed_tag, packed_message = self._channel_in.recv_multipart()
+                tag = msgpack.unpackb(packed_tag)
+                message = Message()
+                message.unpack(packed_message)
+            except Exception as e:
+                self.logger.write_log('Communicational incoming decorator :: %s' % format(e), log_type = 'error')
+            else:
+                success = True
         self._task_id.value = message.id
         return (tag, message)
 
@@ -45,7 +53,7 @@ class OutgoingDecorator:
         self._channel_out.send_multipart([tag, packed_message])
 
 
-def default_communication(config, action, shared_message, task_id):
+def default_communication(logger, config, action, shared_message, task_id):
     """
     Communication level dispatcher. It provides user incoming communication channels from the scheduler and
     controller and an outgoing channel to controller. It also provides a shared string variable which user is free
@@ -66,8 +74,8 @@ def default_communication(config, action, shared_message, task_id):
         from_controller = context.socket(zmq.PULL)
         from_controller.connect("tcp://" + config.controller['host'] + ':' + str(config.controller['port']))
 
-    from_sched_decorated = IncomingDecorator(from_scheduler, task_id)
-    from_contr_decorated = IncomingDecorator(from_controller, task_id)
+    from_sched_decorated = IncomingDecorator(logger, from_scheduler, task_id)
+    from_contr_decorated = IncomingDecorator(logger, from_controller, task_id)
     to_sched_decorated = OutgoingDecorator(to_scheduler)
 
     action(from_sched_decorated, from_contr_decorated, to_sched_decorated, shared_message)

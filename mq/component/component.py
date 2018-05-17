@@ -1,12 +1,12 @@
 import multiprocessing as mp
 import zmq
-from datetime import datetime
 from ctypes import c_char_p
 
 from mq.component.communication import default_communication
 from mq.component.monitoring import default_monitor
 from mq.component.technical import default_tech_listener
 from mq.config import Config
+from mq.protocol import Logger
 
 import platform
 import sys
@@ -39,6 +39,8 @@ class Component:
 
         manager = mp.Manager()
 
+        self.logger = Logger(name)
+
         self.shared_message = manager.Value(c_char_p, '')
         self.is_alive = manager.Value(bool, False)
         self.task_id = manager.Value(c_char_p, '')
@@ -46,43 +48,50 @@ class Component:
         self._tech_master, self._tech_child = mp.Pipe(duplex=True)
 
         self._tech_listen = mp.Process(target=default_tech_listener,
-                                       args=(self._config, self._tech_child,),
+                                       args=(self.logger, self._config, self._tech_child,),
                                        name='Technical channel listener')
 
         self._monitor = mp.Process(target=default_monitor,
-                                   args=(self._config, self.shared_message, self.is_alive,),
+                                   args=(self.logger, self._config, self.shared_message, self.is_alive,),
                                    name='Monitoring sender')
 
         self._communication = mp.Process(target=default_communication,
-                                         args=(self._config, self.run, self.shared_message, self.task_id,),
+                                         args=(self.logger, self._config, self._action_wrapper, self.shared_message, self.task_id,),
                                          name='Communication channel – scheduler')
 
         self._tech_listen.start()
-        self.write_log('Technical listener started.')
+        self.logger.write_log('Component :: Technical listener started.')
         self._communication.start()
-        self.write_log('Communicational process started.')
+        self.logger.write_log('Component :: Communicational process started.')
         self.is_alive.value = True
         self._monitor.start()
-        self.write_log('Monitor started.')
+        self.logger.write_log('Component :: Monitor started.')
 
         while True:
             kill_id = self._tech_master.recv()
             if self.task_id == kill_id and self._communication is not None:
-                self.write_log('Kill message received – restarting communicational process.')
+                self.logger.write_log('Component :: Kill message received – restarting communicational process.')
                 self._communication.terminate()
                 self.is_alive.value = False
                 self._communication = mp.Process(target=default_communication,
-                                                 args=(self._config, self._action_wrapper, self.shared_message, self.task_id,),
+                                                 args=(self.logger, self._config, self._action_wrapper, self.shared_message, self.task_id,),
                                                  name='Communication channel – scheduler')
                 self._communication.start()
-                self.write_log('Communicational process started.')
+                self.logger.write_log('Component :: Communicational process started.')
                 self.is_alive.value = True
 
     def _action_wrapper(self, sched_out, contr_out, sched_in, message):
         try:
-            run(sched_out, contr_out, sched_in, message)
+            self.run(sched_out, contr_out, sched_in, message)
         except Exception as e:
-            self.write_log(format(e), log_type='error')
+            self.is_alive.value = False
+            self.logger.write_log('User action :: %s.' % format(e), log_type='error')
+            self._communication = mp.Process(target=default_communication,
+                                             args=(self.logger, self._config, self._action_wrapper, self.shared_message, self.task_id,),
+                                             name='Communication channel – scheduler')
+            self._communication.start()
+            self.is_alive.value = True
+
 
     def run(self, sched_out, contr_out, sched_in, message):
         pass
@@ -95,9 +104,4 @@ class Component:
         self._tech_listen.terminate()
         self._monitor.terminate()
 
-    def write_log(self, logstring, log_type = 'info'):
-        current_time = str(datetime.now())
-        header = '[' + current_time + ' : ' + self._name + ' : ' + log_type + '] ' 
-        with open(self._config.logfile, 'a+') as log:
-            log.write(header + logstring + '\n')
 

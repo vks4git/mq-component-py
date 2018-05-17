@@ -14,7 +14,7 @@ class Calculator(Component):
         while True:
             tag, msg = sched_out.recv_multipart()
             if message_type(tag) == 'config' and message_spec(tag) == 'example_calculator':
-                self.write_log('received message from %s' % msg.id.decode('UTF-8'))
+                self.logger.write_log('received message from %s' % msg.id.decode('UTF-8'))
                 req = CalcRequest()
                 req.unpack(msg.data)
 
@@ -25,10 +25,10 @@ class Calculator(Component):
                 elif req.action == '*':
                     res = req.first * req.second
                 if res is None:
-                    self.write_log('Unknown action %s received from %s' % (act, msg.id.decode('UTF-8')), log_type = 'warning')
+                    self.logger.write_log('Unknown action %s received from %s' % (act, msg.id.decode('UTF-8')), log_type = 'warning')
                     answer = create_message(msg.id, self.get_config().creator, never_expires, 'example_calculator', 'JSON', 'error', b'{ "error": "unknown action %s" }' % res.encode('UTF-8'))
                 else:
-                    self.write_log('Result sent back to %s' % msg.id.decode('UTF-8'))
+                    self.logger.write_log('Result sent back to %s' % msg.id.decode('UTF-8'))
                     answer = create_message(msg.id, self.get_config().creator, never_expires, 'example_calculator', 'JSON', 'result', CalcResponse(res).pack())
                 sched_in.send(answer)
 
