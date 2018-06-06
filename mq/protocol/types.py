@@ -14,6 +14,8 @@ class Logger:
         header = '[' + current_time + ' : ' + self._name + ' : ' + log_type + '] ' 
         with open(self._config.logfile, 'a+') as log:
             log.write(header + logstring + '\n')
+        if log_type == 'error':
+            print(header + logstring)
 
 
 class JSON:
@@ -101,7 +103,6 @@ class MonitoringResult(MessagePack):
         self.name = unpack_field(dictionary, 'name')
         self.is_alive = unpack_field(dictionary, 'is_alive')
         self.message = unpack_field(dictionary, 'message')
-
 
 def unpack_field(msg: dict, name: str):
     if name in msg:

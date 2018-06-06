@@ -12,11 +12,12 @@ class Bank(Component):
     Monitoring message variable is updated here as an example.
     """
 
-    def run(self, sched_out, contr_out, sched_in, message):
+    def run(self, sched_out, contr_out, sched_in, state_message):
         while True:
             tag, msg = sched_out.recv_multipart()
             if message_type(tag) == 'config' and message_spec(tag) == 'example_bank':
-                message.value = 'received message from %s' % msg.id.decode('UTF-8')
+                self.approve_tag(tag)
+                state_message.value = 'received message from %s' % msg.id.decode('UTF-8')
                 req = BankRequest()
                 req.unpack(msg.data)
                 
@@ -28,7 +29,7 @@ class Bank(Component):
                     if message_type(response_tag) == 'result' and message_spec(response_tag) == 'example_calculator' and message_pid(response_tag) == calculator_msg.id:
                         calculator_result = CalcResponse()
                         calculator_result.unpack(response.data)
-                        message.value = 'Result sent back to %s' % msg.id.decode('UTF-8')
+                        state_message.value = 'Result sent back to %s' % msg.id.decode('UTF-8')
 
                         bank_res = BankResponse(calculator_result.answer)
                         answer = create_message(msg.id, self.get_config().creator, never_expires, 'example_bank', 'JSON', 'result', bank_res.pack())

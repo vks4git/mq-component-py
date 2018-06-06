@@ -1,7 +1,7 @@
 import msgpack
 import zmq
 
-from mq.protocol import Message, message_tag
+from mq.protocol import Message, message_tag, MQError, error_transport
 
 
 class IncomingDecorator:
@@ -12,7 +12,7 @@ class IncomingDecorator:
     Current task id will be used while handling kill messages.
     """
 
-    def __init__(self, logger, channel_in, task_id):
+    def __init__(self, error_send, logger, channel_in, task_id):
         self._channel_in = channel_in
         self._task_id = task_id
         self.logger = logger
@@ -26,10 +26,11 @@ class IncomingDecorator:
                 message = Message()
                 message.unpack(packed_message)
             except Exception as e:
-                self.logger.write_log('Communicational incoming decorator :: %s' % format(e), log_type = 'error')
+                error_msg = 'Communicational incoming decorator :: %s' % format(e)
+                self.logger.write_log(error_msg, log_type = 'error')
+                self.error_send.send(MQError(error_transport, error_msg))
             else:
                 success = True
-        self._task_id.value = message.id
         return (tag, message)
 
 
@@ -53,7 +54,7 @@ class OutgoingDecorator:
         self._channel_out.send_multipart([tag, packed_message])
 
 
-def default_communication(logger, config, action, shared_message, task_id):
+def default_communication(error_send, logger, config, action, shared_message, task_id, master_send):
     """
     Communication level dispatcher. It provides user incoming communication channels from the scheduler and
     controller and an outgoing channel to controller. It also provides a shared string variable which user is free
@@ -70,12 +71,12 @@ def default_communication(logger, config, action, shared_message, task_id):
     to_scheduler.connect("tcp://" + config.scheduler_in['host'] + ':' + str(config.scheduler_in['comport']))
 
     from_controller = None
-    if config.controller['host'] != '':
+    if config.controller_port is not None:
         from_controller = context.socket(zmq.PULL)
-        from_controller.connect("tcp://" + config.controller['host'] + ':' + str(config.controller['port']))
+        from_controller.connect("tcp://" + config.controller_host + ':' + str(config.controller_port))
 
-    from_sched_decorated = IncomingDecorator(logger, from_scheduler, task_id)
-    from_contr_decorated = IncomingDecorator(logger, from_controller, task_id)
+    from_sched_decorated = IncomingDecorator(error_send, logger, from_scheduler, task_id)
+    from_contr_decorated = IncomingDecorator(error_send, logger, from_controller, task_id)
     to_sched_decorated = OutgoingDecorator(to_scheduler)
 
-    action(from_sched_decorated, from_contr_decorated, to_sched_decorated, shared_message)
+    action(from_sched_decorated, from_contr_decorated, to_sched_decorated, shared_message, master_send)

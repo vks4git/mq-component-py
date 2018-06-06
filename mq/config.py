@@ -10,12 +10,11 @@ class Config:
         with open(parsed.config_file, 'r') as f:
             json_conf = json.loads(f.read())
 
-        self.scheduler_in = json_conf['deploy']['monique']['scheduler-in']
-        self.scheduler_out = json_conf['deploy']['monique']['scheduler-out']
-        self.scheduler_out['type'] = 'scheduler'
-        self.name = name
-        self.creator = json_conf['params'][self.name]['creator']
-        self.logfile = json_conf['params'][self.name]['logfile']
-        self.controller = json_conf['params'][self.name]['controller']
-        self.mon_frequency = json_conf['params'][self.name]['frequency']
-        self.controller['type'] = 'controller'
+        self.name            = name
+        self.scheduler_in    = json_conf['deploy']['monique']['scheduler-in']
+        self.scheduler_out   = json_conf['deploy']['monique']['scheduler-out']
+        self.controller_host = json_conf['deploy']['monique']['controller']['host']
+        self.controller_port = json_conf['params'][self.name]['port'] if 'port' in json_conf['params'][self.name] else None
+        self.creator         = json_conf['params'][self.name]['creator']
+        self.logfile         = json_conf['params'][self.name]['logfile']
+        self.mon_frequency   = json_conf['params'][self.name]['frequency']

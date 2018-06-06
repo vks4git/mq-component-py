@@ -10,7 +10,7 @@ class RadioSpeaker(Component):
     In an infinite loop it sends a message to the scheduler every two seconds.
     """
 
-    def run(self, sched_out, contr_out, sched_in, message):
+    def run(self, sched_out, contr_out, sched_in, state_message):
         while True:
             message = create_message(b'', self.get_config().creator, never_expires, 'example_radio', 'JSON', 'data', RadioMessage().pack())
             print(b'sent %s' % message.data)

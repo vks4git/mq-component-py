@@ -10,10 +10,11 @@ class Calculator(Component):
     write_log function is used here as an example.
     """
 
-    def run(self, sched_out, contr_out, sched_in, message):
+    def run(self, sched_out, contr_out, sched_in, state_message):
         while True:
             tag, msg = sched_out.recv_multipart()
             if message_type(tag) == 'config' and message_spec(tag) == 'example_calculator':
+                self.approve_tag(tag)
                 self.logger.write_log('received message from %s' % msg.id.decode('UTF-8'))
                 req = CalcRequest()
                 req.unpack(msg.data)
