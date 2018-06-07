@@ -11,6 +11,9 @@ class Calculator(Component):
     """
 
     def run(self, sched_out, contr_out, sched_in, state_message):
+        # this is way to get full config file
+        print(self._config.full_config)
+        
         while True:
             tag, msg = sched_out.recv_multipart()
             if message_type(tag) == 'config' and message_spec(tag) == 'example_calculator':

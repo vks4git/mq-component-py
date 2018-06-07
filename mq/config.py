@@ -18,3 +18,4 @@ class Config:
         self.creator         = json_conf['params'][self.name]['creator']
         self.logfile         = json_conf['params'][self.name]['logfile']
         self.mon_frequency   = json_conf['params'][self.name]['frequency']
+        self.full_config     = json_conf
