@@ -18,14 +18,14 @@ def default_tech_listener(error_send, logger, config, master_send):
     while True:
         try:
             packed_tag, packed_message = channel.recv_multipart()
-            tag = msgpack.unpackb(packed_tag)
+            tag = msgpack.unpackb(packed_tag, raw=False)
             message = Message()
             message.unpack(packed_message)
 
             msg_type = message_type(tag)
             msg_spec = message_spec(tag)
             if msg_type == 'config' and msg_spec == 'kill':
-                master_send.send(json.loads(message.data.decode('UTF-8'))['task_id'])
+                master_send.send(magpack.unpackb(message.data, raw=False)['task_id'])
         except Exception as e:
             error_msg = 'Technical listener :: %s' % format(e)
             logger.write_log(error_msg, log_type='error')

@@ -17,7 +17,7 @@ def default_error_handler(error_recv, logger, config, shared_message, task_id):
     while True:
         error = error_recv.recv()
         try:
-            message = create_message(task_id.value.encode('UTF-8'), config.creator, never_expires, 'error', 'JSON', 'error', error.pack())
+            message = create_message(task_id.value, config.creator, never_expires, 'error', 'error', error.pack(), False, b'sig')
 
             tag = message_tag(message)
             packed_message = message.pack()

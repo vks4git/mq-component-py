@@ -50,15 +50,16 @@ class MessagePack:
 
 class Message(MessagePack):
     def __init__(self):
-        self.id: bytes = None
-        self.pid: bytes = None
-        self.creator: str = None
-        self.created_at: int = None
-        self.expires_at: int = None
-        self.spec: str = None
-        self.encoding: str = None
-        self.type: str = None
-        self.data: bytes = None
+        self.id:         str   = None
+        self.pid:        str   = None
+        self.creator:    str   = None
+        self.created_at: int   = None
+        self.expires_at: int   = None
+        self.spec:       str   = None
+        self.type:       str   = None
+        self.data:       bytes = None
+        self.encrypted:  bool  = None
+        self.signature:  bytes = None
 
 
     def unpack(self, packed_data):
@@ -78,31 +79,32 @@ class Message(MessagePack):
         """
         dictionary = msgpack.unpackb(packed_data, raw=False)
 
-        self.id = unpack_field(dictionary, 'id')
-        self.pid = unpack_field(dictionary, 'pid')
-        self.creator = unpack_field(dictionary, 'creator')
+        self.id         = unpack_field(dictionary, 'id')
+        self.pid        = unpack_field(dictionary, 'pid')
+        self.creator    = unpack_field(dictionary, 'creator')
         self.created_at = unpack_field(dictionary, 'created_at')
         self.expires_at = unpack_field(dictionary, 'expires_at')
-        self.spec = unpack_field(dictionary, 'spec')
-        self.encoding = unpack_field(dictionary, 'encoding')
-        self.type = unpack_field(dictionary, 'type')
-        self.data = unpack_field(dictionary, 'data')
+        self.spec       = unpack_field(dictionary, 'spec')
+        self.type       = unpack_field(dictionary, 'type')
+        self.data       = unpack_field(dictionary, 'data')
+        self.encrypted  = unpack_field(dictionary, 'encrypted')
+        self.signature  = unpack_field(dictionary, 'signature')
 
 
 class MonitoringResult(MessagePack):
     def __init__(self):
-        self.sync_time = None
-        self.name = None
-        self.is_alive = None
-        self.message = None
+        self.sync_time: int   = None
+        self.name:      str   = None
+        self.is_alive:  bool  = None
+        self.message:   bytes = None
 
     def unpack(self, packed_data):
         dictionary = msgpack.unpackb(packed_data, raw=False)
 
         self.sync_time = unpack_field(dictionary, 'sync_time')
-        self.name = unpack_field(dictionary, 'name')
-        self.is_alive = unpack_field(dictionary, 'is_alive')
-        self.message = unpack_field(dictionary, 'message')
+        self.name      = unpack_field(dictionary, 'name')
+        self.is_alive  = unpack_field(dictionary, 'is_alive')
+        self.message   = unpack_field(dictionary, 'message')
 
 def unpack_field(msg: dict, name: str):
     if name in msg:

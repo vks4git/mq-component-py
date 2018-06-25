@@ -79,8 +79,6 @@ class Component:
 
         while True:
             command = self._tech_master.recv()
-            print(command)
-            print(self.task_id.value)
             if self.task_id.value == command and self._communication is not None:
                 self.task_id.value = None
                 self.logger.write_log('Component :: Kill message received – restarting communicational process.')
@@ -116,8 +114,8 @@ class Component:
     def run(self, sched_out, contr_out, sched_in, state_message):
         pass
 
-    def approve_tag(self, tag : bytes):
-        self.task_id.value = message_id(tag).decode('UTF-8')
+    def approve_tag(self, tag : str):
+        self.task_id.value = message_id(tag)
 
     def get_config(self):
         return self._config

@@ -9,7 +9,7 @@ class MQError(JSON):
     def unpack(self, packed_data):
         dictionary = msgpack.unpackb(packed_data, raw=False)
 
-        self.code = unpack_field(dictionary, 'code')
+        self.code    = unpack_field(dictionary, 'code')
         self.message = unpack_field(dictionary, 'message')
 
 # Error codes

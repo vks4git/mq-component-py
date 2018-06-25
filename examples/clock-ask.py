@@ -13,7 +13,7 @@ class ClockAsk(Component):
 
     def run(self, sched_out, contr_out, sched_in, state_message):
         while True:
-            ask_message = create_message(b'', self.get_config().creator, never_expires, 'example_clock', 'MessagePack', 'config', ClockRequest().pack())
+            ask_message = create_message('', self.get_config().creator, never_expires, 'example_clock', 'config', ClockRequest().pack(), False, b'')
             self.logger.write_log('Question sent.')
             sched_in.send(ask_message)
             while True:

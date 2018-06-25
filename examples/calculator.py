@@ -30,10 +30,10 @@ class Calculator(Component):
                     res = req.first * req.second
                 if res is None:
                     self.logger.write_log('Unknown action %s received from %s' % (act, msg.id.decode('UTF-8')), log_type = 'warning')
-                    answer = create_message(msg.id, self.get_config().creator, never_expires, 'example_calculator', 'JSON', 'error', b'{ "error": "unknown action %s" }' % res.encode('UTF-8'))
+                    answer = create_message(msg.id, self.get_config().creator, never_expires, 'example_calculator', 'error', b'{ "error": "unknown action %s" }' % res.encode('UTF-8'), False, b'')
                 else:
                     self.logger.write_log('Result sent back to %s' % msg.id.decode('UTF-8'))
-                    answer = create_message(msg.id, self.get_config().creator, never_expires, 'example_calculator', 'JSON', 'result', CalcResponse(res).pack())
+                    answer = create_message(msg.id, self.get_config().creator, never_expires, 'example_calculator', 'result', CalcResponse(res).pack(), False, b'')
                 sched_in.send(answer)
 
 

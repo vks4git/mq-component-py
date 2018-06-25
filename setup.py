@@ -1,7 +1,7 @@
 from setuptools import setup
 
 setup(name='mq-component-py',
-      version='0.1.2.1',
+      version='0.1.3.0',
       description='Python component for MoniQue.',
       url='https://github.com/biocad/mq-component-py',
       author='Vladimir Morozov',

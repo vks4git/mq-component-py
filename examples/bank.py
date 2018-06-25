@@ -22,7 +22,7 @@ class Bank(Component):
                 req.unpack(msg.data)
                 
                 calculator_json = CalcRequest(req.months, req.per_month, '*') 
-                calculator_msg = create_message(msg.id, self.get_config().creator, never_expires, 'example_calculator', 'JSON', 'config', calculator_json.pack())
+                calculator_msg = create_message(msg.id, self.get_config().creator, never_expires, 'example_calculator', 'config', calculator_json.pack(), False, b'')
                 sched_in.send(calculator_msg)
                 while True:
                     response_tag, response = sched_out.recv_multipart()
@@ -32,7 +32,7 @@ class Bank(Component):
                         state_message.value = 'Result sent back to %s' % msg.id.decode('UTF-8')
 
                         bank_res = BankResponse(calculator_result.answer)
-                        answer = create_message(msg.id, self.get_config().creator, never_expires, 'example_bank', 'JSON', 'result', bank_res.pack())
+                        answer = create_message(msg.id, self.get_config().creator, never_expires, 'example_bank', 'result', bank_res.pack(), False, b'')
                         sched_in.send(answer)
                         break
 

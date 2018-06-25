@@ -22,7 +22,7 @@ def default_monitor(error_send, logger, config, shared_message, is_alive):
 
             time.sleep(delay)
             res = create_mon_result(config.name, "", status, message)
-            msg = create_message(b'', config.creator, never_expires, 'monitoring', 'JSON', 'data', mon_result_to_json(res))
+            msg = create_message('', config.creator, never_expires, 'monitoring', 'data', res.pack(), False, b'')
             tag = message_tag(msg)
             channel.send_multipart([msgpack.packb(tag, use_bin_type=True), msg.pack()])
         except Exception as e:

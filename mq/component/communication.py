@@ -22,7 +22,7 @@ class IncomingDecorator:
         while not success:
             try:
                 packed_tag, packed_message = self._channel_in.recv_multipart()
-                tag = msgpack.unpackb(packed_tag)
+                tag = msgpack.unpackb(packed_tag, raw=False)
                 message = Message()
                 message.unpack(packed_message)
             except Exception as e:
@@ -47,7 +47,7 @@ class OutgoingDecorator:
     def send(self, message):
         tag = message_tag(message)
         packed_message = message.pack()
-        packed_tag = msgpack.packb(tag, use_bin_type=True)
+        packed_tag     = msgpack.packb(tag, use_bin_type = True)
         self._channel_out.send_multipart([packed_tag, packed_message])
 
     def send_multipart(self, tag, message):
