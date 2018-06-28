@@ -13,7 +13,8 @@ class RadioListener(Component):
             tag, msg = sched_out.recv_multipart()
             if message_type(tag) == 'data' and message_spec(tag) == 'example_radio':
                 self.approve_tag(tag)
-                print(msg.data)
+                #print(msg.data)
+                print("received")
                 state_message.value = "Processed message from %s" % msg.creator
 
 
